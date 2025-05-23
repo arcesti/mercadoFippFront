@@ -6,15 +6,15 @@
           <img src="@/assets/logo.svg" alt="Logo" />
           <span>GreenMarket</span>
         </div>
-        
+
         <nav class="menu">
-          <div class="dropdown">
-            <button class="dropdown-btn">Cadastros</button>
+          <details class="dropdown">
+            <summary class="dropdown-btn">Cadastros</summary>
             <div class="dropdown-content">
               <a href="/categoria/CATEGORIA">Categoria</a>
               <a href="/usuario/USUARIO">Usuário</a>
             </div>
-          </div>
+          </details>
           <a href="/anuncio" class="menu-item">Anúncios</a>
         </nav>
       </div>
@@ -36,13 +36,13 @@
 
 <script>
 export default {
-  name: 'AppHeader',
+  name: "AppHeader",
   data() {
     return {
       // Dados mockados poderiam vir de uma store ou props
-    }
-  }
-}
+    };
+  },
+};
 </script>
 
 <style scoped>
@@ -68,13 +68,18 @@ export default {
 }
 
 .navbar::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 10px;
   right: 10px;
   height: 1px;
-  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
   z-index: -1;
 }
 
@@ -114,7 +119,7 @@ export default {
 }
 
 .menu-item::before {
-  content: '';
+  content: "";
   position: absolute;
   width: 0;
   height: 2px;
@@ -149,9 +154,13 @@ export default {
 }
 
 .dropdown-btn::after {
-  content: '▼';
+  content: "▼";
   font-size: 0.7rem;
   margin-left: 0.5rem;
+}
+
+.dropdown[open] .dropdown-content {
+  display: block;
 }
 
 .dropdown-content {
@@ -189,7 +198,7 @@ export default {
 }
 
 .dropdown-content a:hover::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 0;
@@ -198,9 +207,6 @@ export default {
   background-color: #3c8c3c;
 }
 
-.dropdown:hover .dropdown-content {
-  display: block;
-}
 
 .navbar-right {
   display: flex;
@@ -211,7 +217,11 @@ export default {
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.15),
+    rgba(255, 255, 255, 0.05)
+  );
   padding: 0.6rem 1.2rem;
   border-radius: 50px;
   cursor: pointer;
@@ -222,13 +232,18 @@ export default {
 }
 
 .user-profile::after {
-  content: '';
+  content: "";
   position: absolute;
   top: -50%;
   left: -50%;
   width: 200%;
   height: 200%;
-  background: linear-gradient(60deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(
+    60deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
   transform: rotate(30deg);
   transition: all 0.8s ease;
   opacity: 0;
@@ -240,7 +255,11 @@ export default {
 }
 
 .user-profile:hover {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.1)
+  );
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
@@ -279,19 +298,19 @@ export default {
   .navbar {
     padding: 0 1rem;
   }
-  
+
   .navbar-left {
     gap: 1rem;
   }
-  
+
   .logo span {
     display: none;
   }
-  
+
   .user-info {
     display: none;
   }
-  
+
   .user-profile {
     padding: 0.5rem;
   }
