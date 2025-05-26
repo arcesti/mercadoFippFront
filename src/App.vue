@@ -1,8 +1,13 @@
 <template>
   <div class="app">
-    <Header />
-    <router-view></router-view>
-    <Footer />
+    <div v-if="logar">
+      <pagina-login @voltar="alterarLogar" @logar="realizarLogin"></pagina-login>
+    </div>
+    <div v-if="!logar">
+      <Header @logar="alterarLogar" />
+      <router-view></router-view>
+      <Footer />
+    </div>
   </div>
 </template>
 
@@ -12,6 +17,7 @@ import Feed from './components/Feed.vue'
 import Footer from './components/Footer.vue'
 import FormCategoria from './components/FormCategoria.vue'
 import FormUsuario from './components/FormUsuario.vue'
+import PaginaLogin from "@/components/PaginaLogin.vue";
 
 export default {
   name: 'App',
@@ -20,8 +26,49 @@ export default {
     Feed,
     Footer,
     FormCategoria,
-    FormUsuario
-  }
+    FormUsuario,
+    PaginaLogin
+  },
+  data(){
+    return{
+      logar:false,
+      usuario:{
+        id: 0,
+        nome: "",
+        senha: "",
+        level: 0,
+      }
+    }
+  },
+  methods:{
+    alterarLogar(zerar){
+      console.log("alterando")
+      this.logar=!this.logar;
+      if(zerar!=null && zerar!= undefined && zerar)
+        this.zerarUsuario()
+    },
+    realizarLogin(usuario){
+      localStorage.setItem('usuario', JSON.stringify(usuario));
+      this.usuario=usuario;
+      this.logar=false;
+    },
+    zerarUsuario(){
+      this.usuario={
+        id: 0,
+        nome: "",
+        senha: "",
+        level: 0,
+      }
+      localStorage.removeItem('usuario');
+    }
+  },
+  // mounted() {
+  //   const usuarioSalvo = localStorage.getItem('usuario');
+  //   if (usuarioSalvo) {
+  //     this.usuario =JSON.parse( usuarioSalvo);
+  //
+  //   }
+  // }
 }
 </script>
 

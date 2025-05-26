@@ -24,9 +24,13 @@
           <!-- <div class="user-avatar">
             <img src="@/assets/avatar.jpg" alt="Perfil" />
           </div> -->
-          <div class="user-info">
-            <span class="user-name">Ana Silva</span>
-            <span class="user-status">Online</span>
+          <div class="user-info" @click="Logar">
+
+            <span class="user-name" v-if="usuario.id === 0">Logar</span>
+            <span class="user-status" v-if="usuario.id === 0">Offline</span>
+            <span class="user-name" v-if="usuario.id!==0">{{ usuario.nome }}</span>
+            <span class="user-status" v-if="usuario.id!==0">Online</span>
+
           </div>
         </div>
       </div>
@@ -37,11 +41,32 @@
 <script>
 export default {
   name: "AppHeader",
+  // props:{
+  //   usuario:Object
+  // },
   data() {
     return {
-      // Dados mockados poderiam vir de uma store ou props
-    };
+      usuario:{
+        id: 0,
+        nome: "",
+        senha: "",
+        level: 0,
+      }
+    }
   },
+  methods:{
+    Logar(){
+      this.$emit('logar',true);
+    }
+  },
+  mounted() {
+    const usuarioSalvo = localStorage.getItem('usuario');
+    if (usuarioSalvo) {
+      this.usuario =JSON.parse( usuarioSalvo);
+
+    }
+  }
+
 };
 </script>
 
