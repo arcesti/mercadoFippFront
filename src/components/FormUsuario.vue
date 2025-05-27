@@ -8,21 +8,22 @@
       <div class="row">
         <div>
           <label for="id">ID:</label>
-          <input type="text" disabled="true" v-model="usuario.id" required />
+          <input type="text" disabled v-model="usuario.id" />
         </div>
         <div>
-          <label for="level">level:</label>
+          <label for="level">Nível:</label>
           <select v-model="usuario.level" required>
-            <option disabled value="0">Selecione o level</option>
+            <option disabled value="0">Selecione o nível</option>
             <option value="1">Administrador</option>
             <option value="2">Comum</option>
           </select>
         </div>
       </div>
+
       <div class="row">
         <div>
-          <label for="login">Nome de usuario:</label>
-          <input type="text" v-model="usuario.login" required />
+          <label for="login">Nome de usuário:</label>
+          <input type="text" v-model="usuario.nome" required />
         </div>
       </div>
 
@@ -39,26 +40,26 @@
 
       <div class="button-row">
         <input type="submit" value="Salvar" />
+        <button type="button" @click="voltar">Sair</button>
       </div>
     </form>
 
     <table id="customers">
       <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nome</th>
-          <th>level</th>
-          <th >Excluir</th>
-        </tr>
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Nível</th>
+        <th>Excluir</th>
+      </tr>
       </thead>
       <tbody>
-        <tr v-for="u in usuarios" :key="u.id">
-          <td >{{ u.id }}</td>
-          <td>{{ u.nome }}</td>
-
-          <td>{{ definelevel(u.level) }}</td>
-          <td><button @click="apagar(u)">Apagar</button></td>
-        </tr>
+      <tr v-for="u in usuarios" :key="u.id">
+        <td>{{ u.id }}</td>
+        <td>{{ u.nome }}</td>
+        <td>{{ definelevel(u.level) }}</td>
+        <td><button @click="apagar(u)">Apagar</button></td>
+      </tr>
       </tbody>
     </table>
   </div>
@@ -67,7 +68,6 @@
 <script>
 import axios from "axios";
 import { toast } from "vue3-toastify";
-import "vue3-toastify/dist/index.css";
 
 export default {
   data() {
@@ -87,7 +87,8 @@ export default {
       const id = toast.loading("Gravando um usuário", {
         position: toast.POSITION.TOP_CENTER,
       });
-      if (this.usuario.level == 1 && this.senhaAdm != "1234") {
+
+      if (this.usuario.level == 1 && this.senhaAdm !== "1234") {
         setTimeout(() => {
           toast.update(id, {
             render: "Você informou a senha de administrador errada!",
@@ -96,70 +97,83 @@ export default {
             isLoading: false,
           });
         }, 2000);
+      }
+      else{
 
-        // toast("Hello! Wow so easy!", {
-        //   type: "error",
-        //   position: "top-center",
-        //   transition: "zoom",
-        //   dangerouslyHTMLString: true,
-        // });
-      } else {
-        if (this.usuario.nome && this.usuario.senha && this.usuario.level) {
-          const url = "http://localhost:8080/apis/usuario";
-          axios
-            .post(url, this.usuario)
-            .then((response) => {
-              this.carregarDados();
-              setTimeout(() => {
-                toast.update(id, {
-                  render: "Usuário cadastrado com sucesso" + response.data,
-                  autoClose: true,
-                  type: "sucess",
-                  isLoading: false,
-                });
-              }, 2000);
-            })
-            .catch((error) => {
-              setTimeout(() => {
-                toast.update(id, {
-                  render: "Ocorreu um erro durante a inclusão de usuário",
-                  autoClose: true,
-                  type: "error",
-                  isLoading: false,
-                });
-              }, 2000);
-            });
-          this.usuarios.push({ ...this.usuario });
-          this.usuario = {
-            nome: "",
-            id: 0,
-            senha: "",
-            level: 0,
-          };
-          this.senhaAdm = 0;
-        }
+
+
+      const url = "http://localhost:8080/apis/usuario";
+      axios
+          .post(url, this.usuario)
+          .then((res) => {
+            this.carregarDados();
+            this.resetarFormulario();
+            setTimeout(() => {
+              toast.update(id, {
+                render: "Usuario cadastrado com sucesso",
+                autoClose: true,
+                type: "success",
+                isLoading: false,
+              });
+            }, 2000);
+            this.voltar(res.data);
+            // Login automático após cadastro
+          })
+          .catch(() => {
+            setTimeout(() => {
+              toast.update(id, {
+                render: "Erro ao salvar usuário",
+                autoClose: true,
+                type: "error",
+                isLoading: false,
+              });
+            }, 2000);
+          });
       }
     },
+    apagar(usuario) {
+      if (!confirm(`Tem certeza que deseja excluir o usuário ${usuario.nome}?`)) {
+        return;
+      }
 
+      const url = `http://localhost:8080/apis/usuario/${usuario.id}`;
+      axios
+          .delete(url)
+          .then(() => {
+            toast.success("Usuário excluído com sucesso");
+            this.carregarDados();
+          })
+          .catch(() => {
+            toast.error("Erro ao excluir usuário");
+          });
+    },
     isAdm() {
       return this.usuario.level == 1;
     },
     carregarDados() {
       axios
-        .get("http://localhost:8080/apis/usuario")
-        .then((result) => {
-          this.usuarios = result.data;
-          console.log(this.usuarios)
-        })
-        .catch((error) => {
-          alert(error);
-        });
+          .get("http://localhost:8080/apis/usuario")
+          .then((result) => {
+            this.usuarios = result.data;
+          })
+          .catch(() => {
+            toast.error("Erro ao carregar usuários");
+          });
     },
     definelevel(level) {
-      level==1 ? "Administrador" : "Comum"
+      return level == 1 ? "Administrador" : "Comum";
     },
-    mostrar(usuario) {
-     console.log(usuario);
+    voltar(usuario) {
+      this.$emit("voltar",usuario);
+    },
+    resetarFormulario() {
+      this.usuario = {
+        id: 0,
+        nome: "",
+        senha: "",
+        level: 0,
+      };
+      this.senhaAdm = "";
     },
   },
   mounted() {
@@ -184,7 +198,6 @@ export default {
 }
 
 form {
-  width: 40vw;
   background: linear-gradient(145deg, #ffffff, #f8f9fa);
   padding: 2rem;
   border-radius: 12px;
@@ -197,7 +210,6 @@ form {
 
 .row {
   display: flex;
-  /* flex-wrap: wrap; */
   gap: 2rem;
   justify-content: space-between;
 }
@@ -222,12 +234,10 @@ select {
   border-radius: 8px;
   font-size: 1rem;
   background: #fff;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
   transition: border-color 0.3s ease;
 }
 
-input[type="text"]:focus,
-input[type="password"]:focus,
+input:focus,
 select:focus {
   border-color: #1a5e1a;
   outline: none;
@@ -235,7 +245,7 @@ select:focus {
 
 input[type="submit"],
 button {
-  background: linear-gradient(145deg, #1a5e1a, #3c8c3c);
+  background: #1a5e1a;
   color: white;
   padding: 0.75rem 1.5rem;
   border: none;
@@ -243,12 +253,11 @@ button {
   cursor: pointer;
   font-weight: 600;
   transition: background 0.3s ease, transform 0.2s;
-  box-shadow: 0 4px 10px rgba(26, 94, 26, 0.2);
 }
 
 input[type="submit"]:hover,
 button:hover {
-  background: linear-gradient(145deg, #3c8c3c, #53a653);
+  background: #2d7a2d;
   transform: translateY(-2px);
 }
 
@@ -284,6 +293,8 @@ button:hover {
 }
 
 .button-row {
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
 }
 </style>

@@ -141,6 +141,7 @@ export default {
         usuario: { id: 1 },
       };
       this.fotos = [];
+      this.$emit('salvo');
     },
     adicionarArquivos(event) {
       this.fotos = Array.from(event.target.files).slice(0, 3);
