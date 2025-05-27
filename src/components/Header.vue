@@ -7,8 +7,8 @@
           <span>GreenMarket</span>
         </div>
 
-        <nav class="menu">
-          <details class="dropdown">
+        <nav class="menu" >
+          <details class="dropdown" v-if="this.usuario.id!=0 && this.usuario.level==1">
             <summary class="dropdown-btn">Cadastros</summary>
             <div class="dropdown-content">
               <a href="/categoria/CATEGORIA">Categoria</a>
@@ -63,7 +63,6 @@ export default {
     const usuarioSalvo = localStorage.getItem('usuario');
     if (usuarioSalvo) {
       this.usuario =JSON.parse( usuarioSalvo);
-
     }
   }
 

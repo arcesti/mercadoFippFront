@@ -81,6 +81,9 @@ export default {
     },
     logar(nomeUsuario, senhaUsuario) {
       const url = "http://localhost:8080/apis/usuario/logar";
+      console.log(nomeUsuario)
+      console.log(senhaUsuario)
+
       axios
           .post(url, {
             usuario: nomeUsuario,
