@@ -116,9 +116,9 @@ export default {
             });
             this.limparFormulario();
           })
-          .catch(() => {
+          .catch((err) => {
             toast.update(idToast, {
-              render: "Erro ao salvar o anúncio!",
+              render: "Erro ao salvar o anúncio!" + err.message,
               type: "error",
               autoClose: true,
               isLoading: false,

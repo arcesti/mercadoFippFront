@@ -10,20 +10,11 @@
       <!-- Imagens -->
       <div class="anuncio-images">
         <div class="main-image">
-          <img
-              :src="imagemPrincipal.imagem64"
-              :alt="anuncio.titulo"
-              @error="handleImageError"
-          >
+          <img :src="imagemPrincipal.imagem64" :alt="anuncio.titulo" @error="handleImageError">
         </div>
         <div class="thumbnail-container" v-if="anuncio.fotos && anuncio.fotos.length > 1">
-          <div
-              v-for="(foto, index) in anuncio.fotos"
-              :key="index"
-              class="thumbnail"
-              :class="{ active: imagemAtual === index }"
-              @click="selecionarImagem(index)"
-          >
+          <div v-for="(foto, index) in anuncio.fotos" :key="index" class="thumbnail"
+            :class="{ active: imagemAtual === index }" @click="selecionarImagem(index)">
             <img :src="foto.imagem64" :alt="'Foto ' + (index + 1)" @error="handleThumbnailError">
           </div>
         </div>
@@ -55,11 +46,39 @@
         <div class="anuncio-perguntas">
           <h3>Perguntas</h3>
           <div v-if="anuncio.perguntas && anuncio.perguntas.length">
-            <div v-for="(pergunta, index) in anuncio.perguntas" :key="index" class="campo-salvo">
-              <div>
-                <strong>Pergunta:</strong> {{ pergunta.texto }}<br>
-                <span v-if="pergunta.resposta"><strong>Resposta:</strong> {{ pergunta.resposta }}</span>
-                <span v-else class="text-muted"><em>Sem resposta ainda</em></span>
+            <div v-for="(pergunta, index) in anuncio.perguntas" :key="index" class="campo-salvo pergunta-item">
+              <div class="pergunta-content">
+                <div class="pergunta-texto">
+                  <strong>Pergunta:</strong> {{ pergunta.texto }}
+                </div>
+                
+                <div class="resposta-section">
+                  <div v-if="pergunta.resposta" class="resposta-existente">
+                    <strong>Resposta:</strong> {{ pergunta.resposta }}
+                  </div>
+                  <div v-else class="sem-resposta">
+                    <span class="text-muted"><em>Sem resposta ainda</em></span>
+                    <button @click="toggleResposta(index)" class="btn-responder">
+                      {{ respostaAberta === index ? 'Cancelar' : 'Responder' }}
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Campo de resposta -->
+                <div v-if="respostaAberta === index && !pergunta.resposta" class="campo-resposta">
+                  <div class="campo-input-group">
+                    <input 
+                      type="text" 
+                      class="campo-input" 
+                      v-model="novaResposta"
+                      placeholder="Digite sua resposta"
+                      @keyup.enter="enviarResposta(pergunta.id, index)"
+                    >
+                    <button @click="enviarResposta(pergunta.id, index)" class="btn-enviar-resposta">
+                      Enviar
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -69,18 +88,13 @@
 
           <!-- Formulário para nova pergunta -->
           <div class="campo-input-group" style="margin-top: 1rem;">
-            <input
-                type="text"
-                class="campo-input"
-                v-model="novaPergunta"
-                placeholder="Digite sua pergunta sobre o produto"
-            >
+            <input type="text" class="campo-input" v-model="novaPergunta"
+              placeholder="Digite sua pergunta sobre o produto">
             <button @click="adicionarPergunta" class="btn-adicionar-campo">
               Enviar Pergunta
             </button>
           </div>
         </div>
-
 
       </div>
     </div>
@@ -103,14 +117,16 @@ export default {
     return {
       anuncio: null,
       imagemAtual: 0,
-
+      novaPergunta: '',
+      novaResposta: '',
+      respostaAberta: null,
     };
   },
   computed: {
     imagemPrincipal() {
       return (this.anuncio?.fotos?.length > 0)
-          ? this.anuncio.fotos[this.imagemAtual]
-          : semImagem;
+        ? this.anuncio.fotos[this.imagemAtual]
+        : semImagem;
     },
   },
   created() {
@@ -119,14 +135,14 @@ export default {
   methods: {
     carregarAnuncio() {
       axios.get(`http://localhost:8080/apis/anuncio/${this.id}`)
-          .then(response => {
-            this.anuncio = response.data;
-            console.log(this.anuncio)
-          })
-          .catch(error => {
-            console.error('Erro ao buscar anúncio:', error);
-            this.$router.push('/');
-          });
+        .then(response => {
+          this.anuncio = response.data;
+          console.log(this.anuncio)
+        })
+        .catch(error => {
+          console.error('Erro ao buscar anúncio:', error);
+          this.$router.push('/');
+        });
     },
     voltarParaFeed() {
       this.$router.push('/anuncio');
@@ -148,6 +164,63 @@ export default {
         minimumFractionDigits: 2,
       }).format(numero);
     },
+    adicionarPergunta() {
+      if (!this.novaPergunta.trim()) {
+        alert('Por favor, digite uma pergunta.');
+        return;
+      }
+
+      axios.post(`http://localhost:8080/apis/anuncio/add-pergunta/${this.id}`, {
+        texto: this.novaPergunta
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+        .then(() => {
+          alert('Pergunta enviada com sucesso!');
+          this.novaPergunta = '';
+          this.carregarAnuncio();
+        })
+        .catch((error) => {
+          console.error('Erro ao enviar pergunta:', error);
+          alert('Ocorreu um erro ao enviar a pergunta: ' + error.message);
+        });
+    },
+    toggleResposta(index) {
+      if (this.respostaAberta === index) {
+        this.respostaAberta = null;
+        this.novaResposta = '';
+      } else {
+        this.respostaAberta = index;
+        this.novaResposta = '';
+      }
+    },
+    enviarResposta(perguntaId, index) {
+      if (!this.novaResposta.trim()) {
+        alert('Por favor, digite uma resposta.');
+        return;
+      }
+
+      axios.post(`http://localhost:8080/apis/anuncio/add-resposta/${perguntaId}`, {
+        texto: this.novaResposta
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+        .then(() => {
+          alert('Resposta enviada com sucesso!');
+          this.novaResposta = '';
+          this.respostaAberta = null;
+          console.log(this.novaResposta);
+          this.carregarAnuncio();
+        })
+        .catch((error) => {
+          console.error('Erro ao enviar resposta:', error);
+          alert('Ocorreu um erro ao enviar a resposta: ' + error.message);
+        });
+    }
   }
 }
 </script>
@@ -275,7 +348,8 @@ export default {
 .anuncio-localizacao h3,
 .vendedor-info h3,
 .campo-adicional h3,
-.campos-salvos h3 {
+.campos-salvos h3,
+.anuncio-perguntas h3 {
   font-size: 1.3rem;
   font-weight: 600;
   color: #333;
@@ -394,10 +468,82 @@ export default {
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 0.5rem;
+  border-left: 4px solid #1a5e1a;
+}
+
+/* Estilos específicos para perguntas */
+.pergunta-item {
+  display: block;
+}
+
+.pergunta-content {
+  width: 100%;
+}
+
+.pergunta-texto {
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+.resposta-section {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-left: 4px solid #1a5e1a;
+  margin-bottom: 0.5rem;
+}
+
+.resposta-existente {
+  line-height: 1.5;
+}
+
+.sem-resposta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.text-muted {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.btn-responder {
+  background: #007bff;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+.btn-responder:hover {
+  background: #0056b3;
+}
+
+.btn-enviar-resposta {
+  background: #28a745;
+  color: white;
+  padding: 1rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-enviar-resposta:hover {
+  background: #218838;
+}
+
+.campo-resposta {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #ddd;
 }
 
 .btn-remover {
@@ -503,5 +649,16 @@ export default {
   .campo-input-group {
     flex-direction: column;
   }
-}
-</style>
+
+  .resposta-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .sem-resposta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}</style>
