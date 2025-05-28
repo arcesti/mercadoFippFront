@@ -44,7 +44,7 @@
       </div>
     </form>
 
-    <table id="customers">
+    <!-- <table id="customers">
       <thead>
       <tr>
         <th>ID</th>
@@ -61,7 +61,7 @@
         <td><button @click="apagar(u)">Apagar</button></td>
       </tr>
       </tbody>
-    </table>
+    </table> -->
   </div>
 </template>
 
@@ -102,11 +102,10 @@ export default {
 
 
 
-      const url = "http://localhost:8080/apis/usuario";
+      const url = "http://localhost:8080/apis/usuario/cadastro";
       axios
           .post(url, this.usuario)
           .then((res) => {
-            this.carregarDados();
             this.resetarFormulario();
             setTimeout(() => {
               toast.update(id, {
@@ -131,35 +130,35 @@ export default {
           });
       }
     },
-    apagar(usuario) {
-      if (!confirm(`Tem certeza que deseja excluir o usuário ${usuario.nome}?`)) {
-        return;
-      }
+    // apagar(usuario) {
+    //   if (!confirm(`Tem certeza que deseja excluir o usuário ${usuario.nome}?`)) {
+    //     return;
+    //   }
 
-      const url = `http://localhost:8080/apis/usuario/${usuario.id}`;
-      axios
-          .delete(url)
-          .then(() => {
-            toast.success("Usuário excluído com sucesso");
-            this.carregarDados();
-          })
-          .catch(() => {
-            toast.error("Erro ao excluir usuário");
-          });
-    },
+    //   const url = `http://localhost:8080/apis/usuario/${usuario.id}`;
+    //   axios
+    //       .delete(url)
+    //       .then(() => {
+    //         toast.success("Usuário excluído com sucesso");
+    //         this.carregarDados();
+    //       })
+    //       .catch(() => {
+    //         toast.error("Erro ao excluir usuário");
+    //       });
+    // },
     isAdm() {
       return this.usuario.level == 1;
     },
-    carregarDados() {
-      axios
-          .get("http://localhost:8080/apis/usuario")
-          .then((result) => {
-            this.usuarios = result.data;
-          })
-          .catch(() => {
-            toast.error("Erro ao carregar usuários");
-          });
-    },
+    // carregarDados() {
+    //   axios
+    //       .get("http://localhost:8080/apis/usuario")
+    //       .then((result) => {
+    //         this.usuarios = result.data;
+    //       })
+    //       .catch(() => {
+    //         toast.error("Erro ao carregar usuários");
+    //       });
+    // },
     definelevel(level) {
       return level == 1 ? "Administrador" : "Comum";
     },
@@ -176,9 +175,9 @@ export default {
       this.senhaAdm = "";
     },
   },
-  mounted() {
-    this.carregarDados();
-  },
+  // mounted() {
+  //   this.carregarDados();
+  // },
 };
 </script>
 

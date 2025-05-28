@@ -1,17 +1,18 @@
 <template>
-  <form-anuncio v-if="veForm"  @salvo="voltarParaFeed" />
+  <form-anuncio v-if="veForm" @salvo="voltarParaFeed" />
 
   <main v-else class="feed-container">
     <div>
-      <h1 class="feed-title">Anúncios em Destaque</h1>
-      <button @click="mostrarForm">Adicionar Anúncio</button>
+      <h1 class="feed-title" v-if="!meusAnuncios">Anúncios em Destaque</h1>
+      <h1 class="feed-title" v-if="meusAnuncios">Meus anuncios</h1>
+      <button @click="mostrarForm" class="card-button">Adicionar Anúncio</button>
     </div>
 
     <div class="feed">
       <div
-          v-for="(anuncio, index) in anuncios"
-          :key="index"
-          class="card-anuncio"
+        v-for="(anuncio, index) in anuncios"
+        :key="index"
+        class="card-anuncio"
       >
         <div class="card-image">
           <Carrossel :fotos="anuncio.fotos && anuncio.fotos.length > 0 ? anuncio.fotos : [semImagem]" />
@@ -21,14 +22,9 @@
           <p class="card-description">{{ anuncio.descricao }}</p>
           <div class="card-footer">
             <span class="card-price">{{ formatarPreco(anuncio.preco) }}</span>
-
-            <router-link
-                :to="{ path: `/anuncioEspecifico/${anuncio.id}` }"
-            >
+            <router-link :to="`/anuncioEspecifico/${anuncio.id}`">
               <button class="card-button">Ver detalhes</button>
             </router-link>
-
-
           </div>
         </div>
       </div>
@@ -41,28 +37,52 @@ import axios from "axios";
 import { toast } from "vue3-toastify";
 import Carrossel from "@/components/Carrossel.vue";
 import FormAnuncio from "@/components/FormAnuncio.vue";
-import semImagem from "@/assets/semImagem.png"
+import semImagem from "@/assets/semImagem.png";
 
 export default {
   name: "FeedAnuncios",
-  components: { Carrossel, FormAnuncio },
+  components: {
+    Carrossel,
+    FormAnuncio,
+  },
+  props:{
+    id: Number
+  },
   data() {
     return {
       anuncios: [],
       veForm: false,
-      semImagem
+      semImagem,
+      token: null,
+      meusAnuncios:false
     };
   },
   methods: {
     carregarDados() {
+      if (!this.token) {
+        toast.error("Token não encontrado. Faça login novamente.");
+        return;
+      }
+      let url
+      if(this.id!=0){
+        this.meusAnuncios=true;
+        url="http://localhost:8080/apis/anuncio/user/"+this.id
+      }
+      else
+        url="http://localhost:8080/apis/anuncio"
+      
       axios
-          .get("http://localhost:8080/apis/anuncio")
-          .then((res) => {
-            this.anuncios = res.data;
-          })
-          .catch((error) => {
-            toast.error("Não foi possível recuperar os anúncios: " + error);
-          });
+        .get(url, {
+          headers: {
+            "Authorization": this.token,
+          },
+        })
+        .then((res) => {
+          this.anuncios = res.data;
+        })
+        .catch((error) => {
+          toast.error("Não foi possível recuperar os anúncios: " + error);
+        });
     },
     formatarPreco(valor) {
       const numero = Number(valor) || 0;
@@ -80,7 +100,8 @@ export default {
       this.carregarDados();
     },
   },
-  mounted() {
+  created() {
+    this.token = localStorage.getItem("token");
     this.carregarDados();
   },
 };

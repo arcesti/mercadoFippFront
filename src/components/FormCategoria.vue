@@ -1,62 +1,62 @@
 
   <template>
-    <div class="hello">
-      <h1>{{ msg }}</h1>
+  <div class="hello">
+    <h1>{{ msg }}</h1>
 
-      <form v-if="formOn" @submit.prevent="gravar" class="form-wrapper">
-        <div class="row">
-          <div>
-            <label for="idCat">ID:</label>
-            <input
-                type="text"
-                id="idCat"
-                name="idCat"
-                v-model="id"
-                placeholder="Id da categoria"
-                disabled
-            />
-          </div>
-          <div>
-            <label for="name">Nome:</label>
-            <input
-                type="text"
-                id="name"
-                name="name"
-                v-model="nome"
-                placeholder="Nome da categoria"
-                required
-            />
-          </div>
+    <form v-if="formOn" @submit.prevent="gravar" class="form-wrapper">
+      <div class="row">
+        <div>
+          <label for="idCat">ID:</label>
+          <input
+            type="text"
+            id="idCat"
+            name="idCat"
+            v-model="id"
+            placeholder="Id da categoria"
+            disabled
+          />
         </div>
-
-        <div class="button-row">
-          <input type="submit" value="Cadastrar" />
+        <div>
+          <label for="name">Nome:</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            v-model="nome"
+            placeholder="Nome da categoria"
+            required
+          />
         </div>
-      </form>
-
-      <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
-        <button @click="mostrarForm(true)">Nova Categoria</button>
       </div>
 
-      <table id="customers">
-        <thead>
+      <div class="button-row">
+        <input type="submit" value="Cadastrar" />
+      </div>
+    </form>
+
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem">
+      <button @click="mostrarForm(true)">Nova Categoria</button>
+    </div>
+
+    <table id="customers">
+      <thead>
         <tr>
           <th>ID</th>
-          <th @click="ordenarNome" style="cursor:pointer">NOME</th>
+          <th @click="ordenarNome" style="cursor: pointer">NOME</th>
           <th colspan="2">AÇÕES</th>
         </tr>
-        </thead>
-        <tbody>
+      </thead>
+      <tbody>
         <tr v-for="cat in categorias" :key="cat.id">
           <td>{{ cat.id }}</td>
           <td>{{ cat.nome }}</td>
           <td><button @click="alterar(cat)">Alterar</button></td>
           <td><button @click="apagar(cat)">Apagar</button></td>
         </tr>
-        </tbody>
-      </table>
-    </div>
-  </template>
+      </tbody>
+    </table>
+  </div>
+</template>
 
 <script>
 import axios from "axios";
@@ -71,6 +71,7 @@ export default {
       nome: "",
       formOn: false,
       categorias: [],
+      token: null,
     };
   },
   methods: {
@@ -81,32 +82,40 @@ export default {
       const url = "http://localhost:8080/apis/categoria";
       const data = { id: this.id, nome: this.nome };
       axios
-        .post(url, data)
+        .post(url, data, {
+          headers: {
+            Authorization: this.token
+          },
+        })
         .then((response) => {
           this.carregarDados();
           console.log("Sucesso:", response.data);
         })
         .catch((error) => {
-          alert("erro: ", error);
+          alert("Erro ao gravar: " + error);
         });
       this.formOn = false;
     },
     apagar(categoria) {
-      if(confirm("Deseja realmente excluir a categoria: "+categoria.nome))
-      {axios
-        .delete("http://localhost:8080/apis/categoria/"+categoria.id)
-        .then((result) => {
-
-        })
-        .catch((error) => {
-          alert(error);
-        });}
-
+      if (confirm("Deseja realmente excluir a categoria: " + categoria.nome)) {
+        axios
+          .delete(`http://localhost:8080/apis/categoria/${categoria.id}`, {
+            headers: {
+              "Authorization": this.token,
+            },
+          })
+          .then((result) => {
+            this.carregarDados();
+          })
+          .catch((error) => {
+            alert("Erro ao apagar: " + error);
+          });
+      }
     },
     alterar(categoria) {
-      this.formOn=true;
-      this.id=categoria.id;
-      this.nome=categoria.nome;
+      this.formOn = true;
+      this.id = categoria.id;
+      this.nome = categoria.nome;
       // axios
       //   .get("http://localhost:8080/apis/categoria/"+id)
       //   .then((result) => {
@@ -120,7 +129,11 @@ export default {
     },
     carregarDados() {
       axios
-        .get("http://localhost:8080/apis/categoria")
+        .get("http://localhost:8080/apis/categoria", {
+          headers: {
+            Authorization: this.token,
+          },
+        })
         .then((result) => {
           this.categorias = result.data;
         })
@@ -128,11 +141,12 @@ export default {
           alert(error);
         });
     },
-    ordenarNome(){
-      this.categorias.sort((a,b)=>a.nome.localeCompare(b.nome));
-    }
+    ordenarNome() {
+      this.categorias.sort((a, b) => a.nome.localeCompare(b.nome));
+    },
   },
-  mounted() {
+  created() {
+    this.token = localStorage.getItem("token");
     this.carregarDados();
   },
 };
@@ -243,5 +257,4 @@ div[style] {
 #customers tr:hover {
   background-color: #e0f2e9;
 }
-
 </style>

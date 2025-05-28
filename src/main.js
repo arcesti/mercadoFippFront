@@ -12,7 +12,7 @@ const router = createRouter({
     routes:[
         {path:'/categoria/:msg', component: FormCategoria, props:true},
         // { path:'/usuario/:msg', component: FormUsuario, props:true},
-        { path:'/anuncio', component: Feed},
+        { path:'/anuncio/:id', component: Feed, props:true},
         { path:'/', component: Feed},
         { path:'/anuncioEspecifico/:id', component: AnuncioEspecifico, props:true}
     ]

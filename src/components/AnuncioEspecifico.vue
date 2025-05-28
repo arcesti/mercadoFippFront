@@ -52,13 +52,13 @@
                   <strong>Pergunta:</strong> {{ pergunta.texto }}
                 </div>
                 
-                <div class="resposta-section">
+                <div class="resposta-section" >
                   <div v-if="pergunta.resposta" class="resposta-existente">
                     <strong>Resposta:</strong> {{ pergunta.resposta }}
                   </div>
                   <div v-else class="sem-resposta">
                     <span class="text-muted"><em>Sem resposta ainda</em></span>
-                    <button @click="toggleResposta(index)" class="btn-responder">
+                    <button @click="toggleResposta(index)" class="btn-responder" v-if="isDono">
                       {{ respostaAberta === index ? 'Cancelar' : 'Responder' }}
                     </button>
                   </div>
@@ -120,6 +120,9 @@ export default {
       novaPergunta: '',
       novaResposta: '',
       respostaAberta: null,
+      token:null,
+      usuario:null,
+      isDono:false
     };
   },
   computed: {
@@ -130,14 +133,22 @@ export default {
     },
   },
   created() {
+    this.token=localStorage.getItem("token");
+    this.usuario=JSON.parse(localStorage.getItem("usuario"));
     this.carregarAnuncio();
   },
   methods: {
     carregarAnuncio() {
-      axios.get(`http://localhost:8080/apis/anuncio/${this.id}`)
+      axios.get(`http://localhost:8080/apis/anuncio/${this.id}`,{
+        headers: {
+              "Authorization": this.token,
+            },
+      })
         .then(response => {
           this.anuncio = response.data;
           console.log(this.anuncio)
+          console.log(`logado: ${this.usuario.id} dono:${this.anuncio.usuario.id}`)
+          this.isDono=this.usuario.id==this.anuncio.usuario.id
         })
         .catch(error => {
           console.error('Erro ao buscar anúncio:', error);
@@ -174,8 +185,9 @@ export default {
         texto: this.novaPergunta
       }, {
         headers: {
-          'Content-Type': 'application/json'
-        }
+              "Authorization": this.token,
+              'Content-Type': 'application/json'
+            },
       })
         .then(() => {
           alert('Pergunta enviada com sucesso!');
@@ -205,9 +217,10 @@ export default {
       axios.post(`http://localhost:8080/apis/anuncio/add-resposta/${perguntaId}`, {
         texto: this.novaResposta
       }, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
+         headers: {
+              "Authorization": this.token,
+              'Content-Type': 'application/json'
+            },
       })
         .then(() => {
           alert('Resposta enviada com sucesso!');
@@ -221,7 +234,7 @@ export default {
           alert('Ocorreu um erro ao enviar a resposta: ' + error.message);
         });
     }
-  }
+  },
 }
 </script>
 

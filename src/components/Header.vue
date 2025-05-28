@@ -8,29 +8,25 @@
         </div>
 
         <nav class="menu">
-          <details class="dropdown">
+          <details class="dropdown" v-if="usuario.id !== 0 && usuario.level === 1">
             <summary class="dropdown-btn">Cadastros</summary>
             <div class="dropdown-content">
               <a href="/categoria/CATEGORIA">Categoria</a>
               <a href="/usuario/USUARIO">Usuário</a>
             </div>
           </details>
-          <a href="/anuncio" class="menu-item">Anúncios</a>
+          <a href="/anuncio/0" class="menu-item">Anúncios</a>
+          <a :href="'/anuncio/' + usuario.id" class="menu-item" v-if="usuario.id !== 0">Meus Anúncios</a>
         </nav>
       </div>
 
       <div class="navbar-right">
-        <div class="user-profile">
-          <!-- <div class="user-avatar">
-            <img src="@/assets/avatar.jpg" alt="Perfil" />
-          </div> -->
-          <div class="user-info" @click="Logar">
-
+        <div class="user-profile" @click="Logar">
+          <div class="user-info">
             <span class="user-name" v-if="usuario.id === 0">Logar</span>
             <span class="user-status" v-if="usuario.id === 0">Offline</span>
-            <span class="user-name" v-if="usuario.id!==0">{{ usuario.nome }}</span>
-            <span class="user-status" v-if="usuario.id!==0">Online</span>
-
+            <span class="user-name" v-if="usuario.id !== 0">{{ usuario.nome }}</span>
+            <span class="user-status" v-if="usuario.id !== 0">Online</span>
           </div>
         </div>
       </div>
@@ -41,32 +37,27 @@
 <script>
 export default {
   name: "AppHeader",
-  // props:{
-  //   usuario:Object
-  // },
   data() {
     return {
-      usuario:{
+      usuario: {
         id: 0,
         nome: "",
         senha: "",
         level: 0,
-      }
-    }
+      },
+    };
   },
-  methods:{
-    Logar(){
-      this.$emit('logar',true);
-    }
+  methods: {
+    Logar() {
+      this.$emit("logar", true);
+    },
   },
   mounted() {
-    const usuarioSalvo = localStorage.getItem('usuario');
+    const usuarioSalvo = localStorage.getItem("usuario");
     if (usuarioSalvo) {
-      this.usuario =JSON.parse( usuarioSalvo);
-
+      this.usuario = JSON.parse(usuarioSalvo);
     }
-  }
-
+  },
 };
 </script>
 
@@ -99,12 +90,7 @@ export default {
   left: 10px;
   right: 10px;
   height: 1px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
   z-index: -1;
 }
 
@@ -232,7 +218,6 @@ export default {
   background-color: #3c8c3c;
 }
 
-
 .navbar-right {
   display: flex;
   align-items: center;
@@ -242,11 +227,7 @@ export default {
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.15),
-    rgba(255, 255, 255, 0.05)
-  );
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
   padding: 0.6rem 1.2rem;
   border-radius: 50px;
   cursor: pointer;
@@ -263,12 +244,7 @@ export default {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: linear-gradient(
-    60deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
+  background: linear-gradient(60deg, transparent, rgba(255, 255, 255, 0.1), transparent);
   transform: rotate(30deg);
   transition: all 0.8s ease;
   opacity: 0;
@@ -280,11 +256,7 @@ export default {
 }
 
 .user-profile:hover {
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.2),
-    rgba(255, 255, 255, 0.1)
-  );
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 

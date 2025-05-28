@@ -47,9 +47,10 @@ export default {
       if(zerar!=null && zerar!= undefined && zerar)
         this.zerarUsuario()
     },
-    realizarLogin(usuario){
-      localStorage.setItem('usuario', JSON.stringify(usuario));
-      this.usuario=usuario;
+    realizarLogin(dados){
+      localStorage.setItem('usuario', JSON.stringify(dados.usuario));
+      localStorage.setItem('token', dados.token);
+      this.usuario=dados.usuario;
       this.logar=false;
     },
     zerarUsuario(){
@@ -60,6 +61,7 @@ export default {
         level: 0,
       }
       localStorage.removeItem('usuario');
+      localStorage.removeItem('token');
     }
   },
   // mounted() {
