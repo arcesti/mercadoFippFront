@@ -1,27 +1,45 @@
+# macOS
 .DS_Store
-node_modules
-/dist
 
-
-# local env files
-.env.local
-.env.*.local
-
-# Log files
+# Node
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Editor directories and files
-.idea
-.vscode
+# Build output
+/dist/
+/coverage/
+/build/
+
+# Local env files
+.env
+.env.local
+.env.*.local
+.env.production.local
+.env.development.local
+.env.test.local
+
+# Editor settings
+.idea/
+.vscode/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-/dist/
+# Optional: OS-specific files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
 
-.env*
+# vuepress
+.vuepress/dist
+
+# Storybook build
+.storybook-out/
+
+# VS Code test coverage plugin
+.coverage/
