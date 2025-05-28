@@ -59,6 +59,7 @@ export default {
   },
   methods: {
     carregarDados() {
+      this.token = localStorage.getItem('token');
       if (!this.token) {
         toast.error("Token não encontrado. Faça login novamente.");
         return;
@@ -74,7 +75,7 @@ export default {
       axios
         .get(url, {
           headers: {
-            "Authorization": this.token,
+            Authorization: `Bearer ${this.token}`,
           },
         })
         .then((res) => {

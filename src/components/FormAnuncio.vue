@@ -79,7 +79,7 @@ export default {
         usuario: { id: 1 },
       },
       fotos: [],
-      categorias: [],
+      categorias: []
     };
   },
   methods: {
@@ -102,31 +102,39 @@ export default {
       this.fotos.forEach((foto) => {
         formData.append("fotos", foto);
       });
-
+      const token = localStorage.getItem('token');
       axios
-          .post(url, formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          })
-          .then(() => {
-            toast.update(idToast, {
-              render: "Anúncio salvo com sucesso!",
-              type: "success",
-              autoClose: true,
-              isLoading: false,
-            });
-            this.limparFormulario();
-          })
-          .catch((err) => {
-            toast.update(idToast, {
-              render: "Erro ao salvar o anúncio!" + err.message,
-              type: "error",
-              autoClose: true,
-              isLoading: false,
-            });
+        .post(url, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`
+           },
+        })
+        .then(() => {
+          toast.update(idToast, {
+            render: "Anúncio salvo com sucesso!",
+            type: "success",
+            autoClose: true,
+            isLoading: false,
           });
+          this.limparFormulario();
+        })
+        .catch((err) => {
+          toast.update(idToast, {
+            render: "Erro ao salvar o anúncio!" + err.message,
+            type: "error",
+            autoClose: true,
+            isLoading: false,
+          });
+        });
     },
     carregarDados() {
-      axios.get("http://localhost:8080/apis/categoria").then((resultado) => {
+      const token = localStorage.getItem('token');
+      axios.get("http://localhost:8080/apis/categoria", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }).then((resultado) => {
         this.categorias = resultado.data;
       });
     },
@@ -159,35 +167,42 @@ export default {
   margin: 2rem auto;
   padding: 1rem;
 }
+
 .form-wrapper {
   background: white;
   border-radius: 8px;
   padding: 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
+
 .hello h1 {
   text-align: center;
   margin-bottom: 1.5rem;
   color: #1a5e1a;
 }
+
 form {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
+
 .row {
   display: flex;
   gap: 1rem;
 }
-.row > div {
+
+.row>div {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
+
 label {
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
+
 input,
 select,
 textarea {
@@ -196,6 +211,7 @@ textarea {
   border-radius: 6px;
   font-size: 1rem;
 }
+
 input[type="submit"],
 button {
   background-color: #1a5e1a;
@@ -206,10 +222,12 @@ button {
   cursor: pointer;
   font-weight: bold;
 }
+
 input[type="submit"]:hover,
 button:hover {
   background-color: #3c8c3c;
 }
+
 .button-row {
   display: flex;
   gap: 1rem;
