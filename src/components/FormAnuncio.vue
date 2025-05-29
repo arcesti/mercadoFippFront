@@ -155,7 +155,9 @@ export default {
       this.fotos = Array.from(event.target.files).slice(0, 3);
     },
   },
-  mounted() {
+  created() {
+    this.anuncio.usuario=JSON.parse(localStorage.getItem("usuario"))
+    this.token=localStorage.getItem("token");
     this.carregarDados();
   },
 };

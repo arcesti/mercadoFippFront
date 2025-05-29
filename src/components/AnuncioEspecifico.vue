@@ -25,6 +25,11 @@
         <div class="anuncio-header">
           <h1 class="anuncio-titulo">{{ anuncio.titulo }}</h1>
           <div class="anuncio-preco">{{ formatarPreco(anuncio.preco) }}</div>
+
+          <!-- Botão Excluir (só aparece para usuários level 1) -->
+          <button v-if="usuario && usuario.level === 1" @click="excluirAnuncio" class="btn-excluir">
+            🗑️ Excluir Anúncio
+          </button>
         </div>
 
         <div class="anuncio-descricao">
@@ -51,8 +56,8 @@
                 <div class="pergunta-texto">
                   <strong>Pergunta:</strong> {{ pergunta.texto }}
                 </div>
-                
-                <div class="resposta-section" >
+
+                <div class="resposta-section">
                   <div v-if="pergunta.resposta" class="resposta-existente">
                     <strong>Resposta:</strong> {{ pergunta.resposta }}
                   </div>
@@ -67,13 +72,8 @@
                 <!-- Campo de resposta -->
                 <div v-if="respostaAberta === index && !pergunta.resposta" class="campo-resposta">
                   <div class="campo-input-group">
-                    <input 
-                      type="text" 
-                      class="campo-input" 
-                      v-model="novaResposta"
-                      placeholder="Digite sua resposta"
-                      @keyup.enter="enviarResposta(pergunta.id, index)"
-                    >
+                    <input type="text" class="campo-input" v-model="novaResposta" placeholder="Digite sua resposta"
+                      @keyup.enter="enviarResposta(pergunta.id, index)">
                     <button @click="enviarResposta(pergunta.id, index)" class="btn-enviar-resposta">
                       Enviar
                     </button>
@@ -109,6 +109,7 @@
 <script>
 import axios from "axios";
 import semImagem from "@/assets/semImagem.png";
+import { toast } from "vue3-toastify";
 
 export default {
   name: "AnuncioEspecifico",
@@ -120,9 +121,9 @@ export default {
       novaPergunta: '',
       novaResposta: '',
       respostaAberta: null,
-      token:null,
-      usuario:null,
-      isDono:false
+      token: null,
+      usuario: null,
+      isDono: false
     };
   },
   computed: {
@@ -133,22 +134,22 @@ export default {
     },
   },
   created() {
-    this.token=localStorage.getItem("token");
-    this.usuario=JSON.parse(localStorage.getItem("usuario"));
+    this.token = localStorage.getItem("token");
+    this.usuario = JSON.parse(localStorage.getItem("usuario"));
     this.carregarAnuncio();
   },
   methods: {
     carregarAnuncio() {
-      axios.get(`http://localhost:8080/apis/anuncio/${this.id}`,{
+      axios.get(`http://localhost:8080/apis/anuncio/${this.id}`, {
         headers: {
-              "Authorization": this.token,
-            },
+          "Authorization": this.token,
+        },
       })
         .then(response => {
           this.anuncio = response.data;
           console.log(this.anuncio)
           console.log(`logado: ${this.usuario.id} dono:${this.anuncio.usuario.id}`)
-          this.isDono=this.usuario.id==this.anuncio.usuario.id
+          this.isDono = this.usuario.id == this.anuncio.usuario.id
         })
         .catch(error => {
           console.error('Erro ao buscar anúncio:', error);
@@ -156,7 +157,7 @@ export default {
         });
     },
     voltarParaFeed() {
-      this.$router.push('/anuncio');
+      this.$router.push('/anuncio/0');
     },
     selecionarImagem(index) {
       this.imagemAtual = index;
@@ -185,12 +186,12 @@ export default {
         texto: this.novaPergunta
       }, {
         headers: {
-              "Authorization": this.token,
-              'Content-Type': 'application/json'
-            },
+          "Authorization": this.token,
+          'Content-Type': 'application/json'
+        },
       })
         .then(() => {
-          alert('Pergunta enviada com sucesso!');
+          toast('Pergunta enviada com sucesso!');
           this.novaPergunta = '';
           this.carregarAnuncio();
         })
@@ -217,10 +218,10 @@ export default {
       axios.post(`http://localhost:8080/apis/anuncio/add-resposta/${perguntaId}`, {
         texto: this.novaResposta
       }, {
-         headers: {
-              "Authorization": this.token,
-              'Content-Type': 'application/json'
-            },
+        headers: {
+          "Authorization": this.token,
+          'Content-Type': 'application/json'
+        },
       })
         .then(() => {
           alert('Resposta enviada com sucesso!');
@@ -233,6 +234,21 @@ export default {
           console.error('Erro ao enviar resposta:', error);
           alert('Ocorreu um erro ao enviar a resposta: ' + error.message);
         });
+    },
+    excluirAnuncio() {
+      if (confirm('Tem certeza que deseja excluir este anúncio? Esta ação não pode ser desfeita.')) {
+        // Aqui você pode implementar a lógica de exclusão
+        console.log('Excluindo anúncio...');
+        axios.delete(`http://localhost:8080/apis/anuncio/${this.id}`, {
+          headers: { "Authorization": this.token }
+        }).then(() => {
+          alert('Anúncio excluído com sucesso!');
+          this.$router.push('/anuncio/0');
+        })
+        .catch((err) => {
+          toast.error(`Erro ao excluir anúncio: ${err}`)
+        });
+      }
     }
   },
 }
@@ -354,6 +370,29 @@ export default {
   padding: 1rem 1.5rem;
   border-radius: 12px;
   display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.btn-excluir {
+  background: #dc3545;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.btn-excluir:hover {
+  background: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
 }
 
 .anuncio-descricao h3,
@@ -674,4 +713,5 @@ export default {
     align-items: flex-start;
     gap: 0.5rem;
   }
-}</style>
+}
+</style>

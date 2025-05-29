@@ -1,5 +1,5 @@
 <template>
-  <div class="login-container" v-if="!isCadastro">
+  <div class="login-container" v-if="!isCadastro && !this.usuarioLogado">
     <div class="login-content">
       <div class="login-header">
         <h1 class="login-titulo">Fazer Login</h1>
@@ -9,22 +9,12 @@
       <div class="login-form">
         <div class="campo-input-group">
           <label class="campo-label">Usuário</label>
-          <input
-              type="text"
-              class="campo-input"
-              v-model="usuario"
-              placeholder="Digite seu usuário"
-          >
+          <input type="text" class="campo-input" v-model="usuario" placeholder="Digite seu usuário">
         </div>
 
         <div class="campo-input-group">
           <label class="campo-label">Senha</label>
-          <input
-              type="password"
-              class="campo-input"
-              v-model="senha"
-              placeholder="Digite sua senha"
-          >
+          <input type="password" class="campo-input" v-model="senha" placeholder="Digite sua senha">
         </div>
 
         <div class="login-acoes">
@@ -43,8 +33,39 @@
     </div>
   </div>
 
+  <!-- Área do usuário logado -->
+  <div class="login-container" v-if="!isCadastro && this.usuarioLogado">
+    <div class="login-content">
+      <div class="login-header">
+        <h1 class="login-titulo">Olá, {{ usuarioLogado.nome || usuarioLogado.usuario }}!</h1>
+        <p class="login-subtitulo">Gerencie sua conta</p>
+      </div>
+
+      <div class="usuario-info">
+        <div class="info-item">
+          <label class="campo-label">Nome do Usuário</label>
+          <div class="info-value">{{ usuarioLogado.nome || usuarioLogado.usuario }}</div>
+        </div>
+
+        <div class="info-item">
+          <label class="campo-label">Total de Anúncios</label>
+          <div class="info-value">5 anúncios</div>
+        </div>
+
+        <div class="login-acoes">
+          <button @click="voltar" class="btn-login">
+            Voltar ao Feed
+          </button>
+          <button @click="deslogar" class="btn-login">
+            Sair da Conta
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div v-if="isCadastro">
-    <form-usuario @voltar="cadastrar" ></form-usuario>
+    <form-usuario @voltar="cadastrar"></form-usuario>
   </div>
 </template>
 
@@ -63,16 +84,23 @@ export default {
       usuario: "",
       senha: "",
       isCadastro: false,
+      usuarioLogado: null
     };
+  },
+  created() {
+    const user = localStorage.getItem('usuario');
+    console.log(user)
+    if (user)
+      this.usuarioLogado = JSON.parse(user);
   },
   methods: {
     cadastrar(usuario) {
-      if(usuario==null)
+      if (usuario == null)
         this.isCadastro = true;
       else {
-        this.isCadastro=false;
-        this.usuario=usuario.nome;
-        this.senha=usuario.senha;
+        this.isCadastro = false;
+        this.usuario = usuario.nome;
+        this.senha = usuario.senha;
       }
     },
     voltar() {
@@ -85,17 +113,22 @@ export default {
       console.log(senhaUsuario)
 
       axios
-          .post(url, {
-            usuario: nomeUsuario,
-            senha: senhaUsuario,
-          })
-          .then((resultado) => {
-            this.$emit("logar", resultado.data);
-          })
-          .catch(() => {
-            toast.error("Ocorreu um erro ao logar, usuário ou senha incorretos");
-          });
+        .post(url, {
+          usuario: nomeUsuario,
+          senha: senhaUsuario,
+        })
+        .then((resultado) => {
+          this.$emit("logar", resultado.data);
+        })
+        .catch(() => {
+          toast.error("Ocorreu um erro ao logar, usuário ou senha incorretos");
+        });
     },
+    deslogar() {
+      localStorage.removeItem('usuario');
+      localStorage.removeItem('token');
+      this.usuarioLogado = null;
+    }
   },
 };
 </script>
@@ -230,22 +263,63 @@ export default {
   color: #0056b3;
 }
 
+/* Estilos para área do usuário logado */
+.usuario-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.info-value {
+  background: #f8f9fa;
+  padding: 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #333;
+  font-weight: 500;
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
   .login-container {
     padding: 1rem;
   }
 
-  .login-content {
+  .login-content,
+  .usuario-logado-content {
     padding: 2rem;
   }
 
-  .login-titulo {
-    font-size: 1.8rem;
+  .usuario-header {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
   }
 
-  .login-subtitulo {
-    font-size: 1rem;
+  .secao-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .anuncio-card {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .anuncio-acoes {
+    align-self: flex-end;
   }
 }
 </style>

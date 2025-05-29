@@ -44,8 +44,8 @@ export default {
     alterarLogar(zerar){
       console.log("alterando")
       this.logar=!this.logar;
-      if(zerar!=null && zerar!= undefined && zerar)
-        this.zerarUsuario()
+      /*if(zerar!=null && zerar!= undefined && zerar)
+        this.zerarUsuario()*/
     },
     realizarLogin(dados){
       localStorage.setItem('usuario', JSON.stringify(dados.usuario));
