@@ -49,7 +49,7 @@
 
         <div class="info-item">
           <label class="campo-label">Total de Anúncios</label>
-          <div class="info-value">5 anúncios</div>
+          <div class="info-value">{{ anuncios }} anúncios</div>
         </div>
 
         <div class="login-acoes">
@@ -84,7 +84,8 @@ export default {
       usuario: "",
       senha: "",
       isCadastro: false,
-      usuarioLogado: null
+      usuarioLogado: null,
+      anuncios: null
     };
   },
   created() {
@@ -92,6 +93,20 @@ export default {
     console.log(user)
     if (user)
       this.usuarioLogado = JSON.parse(user);
+    const token = localStorage.getItem('token');
+    if(token) {
+      axios.get(`http://localhost:8080/apis/anuncio/user/${this.usuarioLogado.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      .then((res) => {
+        this.anuncios = res.data.length;
+      })
+      .catch((err) => {
+        toast.error(`Erro aquiii ao recuperar anúncios: ${err}`);
+      })
+    }
   },
   methods: {
     cadastrar(usuario) {
@@ -106,6 +121,7 @@ export default {
     voltar() {
       this.isCadastro = false;
       this.$emit("voltar", false);
+      this.$router.push('/anuncio/0');
     },
     logar(nomeUsuario, senhaUsuario) {
       const url = "http://localhost:8080/apis/usuario/logar";
@@ -119,6 +135,7 @@ export default {
         })
         .then((resultado) => {
           this.$emit("logar", resultado.data);
+          this.$router.push('/anuncio/0');
         })
         .catch(() => {
           toast.error("Ocorreu um erro ao logar, usuário ou senha incorretos");

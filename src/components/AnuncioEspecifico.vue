@@ -237,8 +237,6 @@ export default {
     },
     excluirAnuncio() {
       if (confirm('Tem certeza que deseja excluir este anúncio? Esta ação não pode ser desfeita.')) {
-        // Aqui você pode implementar a lógica de exclusão
-        console.log('Excluindo anúncio...');
         axios.delete(`http://localhost:8080/apis/anuncio/${this.id}`, {
           headers: { "Authorization": this.token }
         }).then(() => {

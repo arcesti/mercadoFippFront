@@ -12,7 +12,7 @@
             <summary class="dropdown-btn">Cadastros</summary>
             <div class="dropdown-content">
               <a href="/categoria/CATEGORIA">Categoria</a>
-              <a href="/usuario/USUARIO">Usuário</a>
+              <a href="/usuario/USUARIO">Gerenciar Usuário</a>
             </div>
           </details>
           <a href="/anuncio/0" class="menu-item">Anúncios</a>

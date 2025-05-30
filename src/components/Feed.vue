@@ -60,6 +60,23 @@
       <!-- Search Bar with Add Button -->
       <div class="search-section">
         <div class="search-container">
+          <!-- Select de Categoria Estilizado -->
+          <div class="select-wrapper">
+            <svg class="select-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M19 7l-7 7-7-7"></path>
+            </svg>
+            <select 
+              v-model="categoriaSelecionada" 
+              @change="filtrarAnuncios" 
+              class="category-select"
+            >
+              <option value="">Todas as categorias</option>
+              <option v-for="categoria in categorias" :key="categoria.id" :value="categoria.id">
+                {{ categoria.nome }}
+              </option>
+            </select>
+          </div>
+
           <div class="search-input-wrapper">
             <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <circle cx="11" cy="11" r="8"></circle>
@@ -88,6 +105,17 @@
     <!-- Results Info -->
     <div class="results-info" v-if="anunciosFiltrados.length > 0">
       <span class="results-count">{{ anunciosFiltrados.length }} anúncios encontrados</span>
+      <div class="active-filters" v-if="categoriaSelecionada || searchQuery">
+        <span class="filter-label">Filtros ativos:</span>
+        <span v-if="categoriaSelecionada" class="filter-tag">
+          {{ getNomeCategoria(categoriaSelecionada) }}
+          <button @click="limparFiltroCategoria" class="filter-remove">×</button>
+        </span>
+        <span v-if="searchQuery" class="filter-tag">
+          "{{ searchQuery }}"
+          <button @click="limparBusca" class="filter-remove">×</button>
+        </span>
+      </div>
     </div>
 
     <!-- Feed Grid -->
@@ -158,7 +186,9 @@ export default {
       token: null,
       meusAnuncios: false,
       searchQuery: '',
-      usuario: null
+      usuario: null,
+      categorias: [],
+      categoriaSelecionada: ''
     };
   },
   methods: {
@@ -170,7 +200,7 @@ export default {
           .then((res) => {
             this.anuncios = res.data;
             this.anunciosFiltrados = this.anuncios.sort((a, b) => a.titulo.localeCompare(b.titulo));
-            this.anunciosFiltrados = this.anunciosFiltrados.splice(0,5);
+            this.anunciosFiltrados = this.anunciosFiltrados.splice(0, 5);
           })
           .catch((err) => {
             toast.error("Não foi possível recuperar os anúncios: " + err);
@@ -185,6 +215,18 @@ export default {
       else
         url = "http://localhost:8080/apis/anuncio"
 
+      axios.get(`http://localhost:8080/apis/categoria`, {
+        headers: {
+          Authorization: `Bearer ${this.token}`
+        }
+      })
+        .then((res) => {
+          this.categorias = res.data;
+        })
+        .catch((err) => {
+          toast.error(`Não foi possível recuperar categorias: ${err}`);
+        })
+
       axios
         .get(url, {
           headers: {
@@ -194,7 +236,6 @@ export default {
         .then((res) => {
           this.anuncios = res.data;
           this.anunciosFiltrados = this.anuncios.sort((a, b) => a.titulo.localeCompare(b.titulo));
-          this.anunciosFiltrados = this.anunciosFiltrados;
         })
         .catch((error) => {
           toast.error("Não foi possível recuperar os anúncios: " + error);
@@ -216,22 +257,37 @@ export default {
       this.carregarDados();
     },
     filtrarAnuncios() {
-      if (!this.searchQuery.trim()) {
-        this.anunciosFiltrados = this.anuncios.sort((a, b) => a.titulo.localeCompare(b.titulo));
-      } else {
-        this.anunciosFiltrados = this.anuncios.sort((a, b) => a.titulo.localeCompare(b.titulo));
+      let anunciosFiltrados = [...this.anuncios];
+
+      if (this.categoriaSelecionada) {
+        anunciosFiltrados = anunciosFiltrados.filter(anuncio => 
+          anuncio.categoria && anuncio.categoria.id == this.categoriaSelecionada
+        );
+      }
+
+      if (this.searchQuery.trim()) {
         const termo = this.searchQuery.toLowerCase().trim();
-        this.anunciosFiltrados = this.anuncios.filter(anuncio => {
+        anunciosFiltrados = anunciosFiltrados.filter(anuncio => {
           const titulo = anuncio.titulo ? anuncio.titulo.toLowerCase() : '';
           const descricao = anuncio.descricao ? anuncio.descricao.toLowerCase() : '';
           return titulo.includes(termo) || descricao.includes(termo);
         });
       }
+
+      this.anunciosFiltrados = anunciosFiltrados.sort((a, b) => a.titulo.localeCompare(b.titulo));
     },
     limparBusca() {
       this.searchQuery = '';
-      this.anunciosFiltrados = this.anuncios;
+      this.filtrarAnuncios();
     },
+    limparFiltroCategoria() {
+      this.categoriaSelecionada = '';
+      this.filtrarAnuncios();
+    },
+    getNomeCategoria(categoriaId) {
+      const categoria = this.categorias.find(cat => cat.id == categoriaId);
+      return categoria ? categoria.nome : '';
+    }
   },
   created() {
     this.token = localStorage.getItem("token");
@@ -294,8 +350,58 @@ export default {
 .search-container {
   display: flex;
   gap: 0.75rem;
-  max-width: 500px;
+  max-width: 600px;
   margin: 0 auto;
+}
+
+/* Select Estilizado */
+.select-wrapper {
+  position: relative;
+  min-width: 180px;
+}
+
+.category-select {
+  width: 100%;
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  background: #f8fafc;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.category-select:focus {
+  border-color: #1a5e1a;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(26, 94, 26, 0.1);
+}
+
+.category-select option {
+  padding: 0.5rem;
+  background: white;
+  color: #475569;
+}
+
+.select-icon {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: #64748b;
+  pointer-events: none;
+  transition: transform 0.2s ease;
+}
+
+.select-wrapper:hover .select-icon {
+  transform: translateY(-50%) rotate(180deg);
 }
 
 .search-input-wrapper {
@@ -355,8 +461,6 @@ export default {
   color: #64748b;
 }
 
-/* Add Button (moved to search section) */
-
 .add-button {
   background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   color: white;
@@ -371,6 +475,7 @@ export default {
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
   font-size: 0.9rem;
+  white-space: nowrap;
 }
 
 .add-button:hover {
@@ -393,6 +498,50 @@ export default {
   font-weight: 600;
   color: #475569;
   font-size: 1rem;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.active-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.filter-label {
+  font-size: 0.875rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.filter-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: linear-gradient(135deg, #1a5e1a 0%, #22c55e 100%);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.filter-remove {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+  margin-left: 0.25rem;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.filter-remove:hover {
+  opacity: 1;
 }
 
 /* Feed Grid */
@@ -580,6 +729,10 @@ export default {
     max-width: 100%;
   }
 
+  .select-wrapper {
+    min-width: 100%;
+  }
+
   .feed {
     grid-template-columns: 1fr;
   }
@@ -590,6 +743,10 @@ export default {
 
   .card-footer {
     gap: 1rem;
+  }
+
+  .active-filters {
+    margin-top: 0.5rem;
   }
 }
 </style>
