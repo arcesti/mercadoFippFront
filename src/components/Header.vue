@@ -3,8 +3,7 @@
     <div class="navbar">
       <div class="navbar-left">
         <div class="logo">
-          <img src="@/assets/logo.svg" alt="Logo" />
-          <span>GreenMarket</span>
+          <span>Mercado Fipp</span>
         </div>
 
         <nav class="menu">

@@ -3,8 +3,7 @@
     <div class="footer-content">
       <div class="footer-section">
         <div class="footer-logo">
-          <img src="@/assets/logo.svg" alt="Logo" />
-          <span>GreenMarket</span>
+          <span>Mercado Fipp</span>
         </div>
         <p class="footer-description">
           A melhor plataforma para anúncios de compra e venda. Encontre o que precisa ou anuncie seus produtos!
@@ -21,22 +20,14 @@
         </ul>
       </div>
       
-      <div class="footer-section">
-        <h3>Categorias</h3>
-        <ul class="footer-links">
-          <li><a href="#">Eletrônicos</a></li>
-          <li><a href="#">Imóveis</a></li>
-          <li><a href="#">Veículos</a></li>
-          <li><a href="#">Moda e Beleza</a></li>
-        </ul>
-      </div>
+
       
       <div class="footer-section">
         <h3>Contato</h3>
         <ul class="footer-contact">
           <li>
             <span class="icon">✉</span>
-            <span>contato@greenmarket.com</span>
+            <span>contato@mercadofipp.com</span>
           </li>
           <li>
             <span class="icon">☎</span>
@@ -44,19 +35,18 @@
           </li>
           <li>
             <span class="icon">📍</span>
-            <span>Av. Paulista, 1000 - São Paulo</span>
+            <span>R. José Bongiovani, 700, Pres. Prudente</span>
           </li>
         </ul>
       </div>
     </div>
     
     <div class="footer-bottom">
-      <p>&copy; 2025 GreenMarket. Todos os direitos reservados.</p>
+      <p>&copy; 2025 Mercado Fipp. Todos os direitos reservados.</p>
       <div class="social-icons">
-        <a href="#" class="social-icon">FB</a>
-        <a href="#" class="social-icon">IG</a>
-        <a href="#" class="social-icon">TW</a>
-        <a href="#" class="social-icon">YT</a>
+        <a href="https://www.linkedin.com/in/arcesti-ricci/" class="social-icon">AC</a>
+        <a href="https://www.linkedin.com/in/jo%C3%A3o-manuel-pereira-123879289/" class="social-icon">JM</a>
+        <a href="https://www.linkedin.com/in/jo%C3%A3o-paulo-bortolocce-b98210309/" class="social-icon">JP</a>
       </div>
     </div>
   </footer>

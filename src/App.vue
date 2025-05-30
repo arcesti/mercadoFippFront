@@ -16,9 +16,6 @@ import Header from './components/Header.vue'
 import Feed from './components/Feed.vue'
 import Footer from './components/Footer.vue'
 import FormCategoria from './components/FormCategoria.vue'
-import FormUsuario from './components/FormUsuario.vue'
-import PaginaLogin from "@/components/PaginaLogin.vue";
-
 export default {
   name: 'App',
   components: {
@@ -64,6 +61,7 @@ export default {
       localStorage.removeItem('token');
     }
   },
+
   // mounted() {
   //   const usuarioSalvo = localStorage.getItem('usuario');
   //   if (usuarioSalvo) {
@@ -72,6 +70,9 @@ export default {
   //   }
   // }
 }
+import FormUsuario from './components/FormUsuario.vue'
+
+import PaginaLogin from "@/components/PaginaLogin.vue";
 </script>
 
 <style>
